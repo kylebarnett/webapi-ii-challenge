@@ -19,14 +19,32 @@ router.post('/', (req, res) => {
 })
 
 router.post('/:id/comments', async (req, res) => {
-  const comments = { ...req.body, comment_id: req.params.id }
-  try {
-    const comment = await db.insertComment(comments)
-    res.status(201).json(comment)
-  } catch {
-    res.status(500).json({ error: "There was an error while saving the comment to the database." })
+  const commentInfo = { ...req.body, id: req.params.id };
+
+  if (!commentInfo.text) {
+    return res.status(400).json({
+      errorMessage: "Please provide text for the comment"
+    })
   }
-})
+
+  try {
+    const post = await db.findById(commentInfo.id);
+    if (post.length === 0) {
+      res.status(404).json({
+        message: "The post with the specified ID does not exist"
+      })
+    } else {
+      const response = await db.insertComment(commentInfo.text);
+      const comment = await db.findCommentById(id);
+      res.status(201).json(response);
+    }
+  } catch (error) {
+    res.status(500).json({
+      error: "There was an error while saving the comment to the database"
+    });
+  }
+
+});
 
 //GET METHODS
 router.get('/', (req, res) => {
@@ -51,6 +69,25 @@ router.get('/:id', async (req, res) => {
   } catch {
     res.status(500).json({ error: "The post information could not be retrieved." })
   }
+})
+
+//DELETE METHODS
+router.delete('/:id', (req, res) => {
+  const id = req.params.id;
+  db.remove(id)
+  .then(post => {
+      if (!post) {
+        res.status(404).json({ error: "The post with the specified ID does not exist." })
+      }
+      res.status(201).json(post)
+    })
+    .catch(err => {
+      res.status(500).json({ error: "The post could not be removed." })
+    })
+})
+
+router.get('/:id/comments', (req, res) => {
+
 })
 
 module.exports = router;
