@@ -40,4 +40,17 @@ router.get('/', (req, res) => {
     })
 })
 
+router.get('/:id', async (req, res) => {
+  try {
+    const posts = await db.findById(req.params.id)
+    if (posts.length > 0) {
+      res.status(200).send(posts)
+    } else {
+      res.status(404).json({ message: "The post with the specified ID does not exist." })
+    }
+  } catch {
+    res.status(500).json({ error: "The post information could not be retrieved." })
+  }
+})
+
 module.exports = router;
