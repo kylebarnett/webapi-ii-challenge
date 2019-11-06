@@ -19,28 +19,24 @@ router.post('/', (req, res) => {
 })
 
 router.post('/:id/comments', async (req, res) => {
-  const commentInfo = { ...req.body, id: req.params.id };
+  const commentInfo = { ...req.body, post_id: req.params.id };
 
   if (!commentInfo.text) {
     return res.status(400).json({
-      errorMessage: "Please provide text for the comment"
+      errorMessage: "Please provide text for the comment."
     })
   }
 
   try {
-    const post = await db.findById(commentInfo.id);
-    if (post.length === 0) {
-      res.status(404).json({
-        message: "The post with the specified ID does not exist"
-      })
+    if (!commentInfo.post_id) {
+      res.status(404).json({ message: "The post with the specified ID does not exist." })
     } else {
-      const response = await db.insertComment(commentInfo.text);
-      const comment = await db.findCommentById(id);
-      res.status(201).json(response);
+      console.log('testing')
+      res.status(201).json(commentInfo)
     }
   } catch (error) {
     res.status(500).json({
-      error: "There was an error while saving the comment to the database"
+      error: "There was an error while saving the comment to the database."
     });
   }
 
@@ -68,6 +64,19 @@ router.get('/:id', async (req, res) => {
     }
   } catch {
     res.status(500).json({ error: "The post information could not be retrieved." })
+  }
+})
+
+router.get('/:id/comments', async (req, res) => {
+  try {
+    const comments = await db.findPostComments(req.params.id);
+    if (comments.length > 0) {
+      res.status(200).json(comments)
+    } else {
+      res.status(404).json({ message: "The post with the specified ID does not exist." })
+    }
+  } catch {
+    res.status(500).json({ error: "The comments information could not be retrieved." })
   }
 })
 
