@@ -31,7 +31,6 @@ router.post('/:id/comments', async (req, res) => {
     if (!commentInfo.post_id) {
       res.status(404).json({ message: "The post with the specified ID does not exist." })
     } else {
-      console.log('testing')
       res.status(201).json(commentInfo)
     }
   } catch (error) {
@@ -70,15 +69,28 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/comments', async (req, res) => {
   try {
     const comments = await db.findPostComments(req.params.id);
-    if (comments.length > 0) {
-      res.status(200).json(comments)
-    } else {
+    if (comments.length === 0) {
       res.status(404).json({ message: "The post with the specified ID does not exist." })
+    } else {
+      res.status(200).json(comments)
     }
   } catch {
     res.status(500).json({ error: "The comments information could not be retrieved." })
   }
 })
+
+// router.get('/:id/comments', async (req, res) => {
+//   try {
+//     const comments = await db.findPostComments(req.params.id);
+//     if (comments.length > 0) {
+//       res.status(200).json(comments)
+//     } else {
+//       res.status(404).json({ message: "The post with the specified ID does not exist." })
+//     }
+//   } catch {
+//     res.status(500).json({ error: "The comments information could not be retrieved." })
+//   }
+// })
 
 //PUT METHODS
 router.put('/:id', (req, res) => {
