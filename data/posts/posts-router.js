@@ -43,8 +43,7 @@ router.post('/:id/comments', async (req, res) => {
 
 //GET METHODS
 router.get('/', (req, res) => {
-  const posts = req.body;
-  db.find(posts)
+  db.find()
     .then(post => {
       res.status(200).send(post)
     })
